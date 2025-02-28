@@ -34,7 +34,7 @@ public:
 	}
 
 	// 带右值引用参数的拷贝构造
-	CMyString(CMyString&& str) {
+	CMyString(CMyString&& str) noexcept{
 		// 如果参数是临时对象的话，就会调用带右值引用参数的拷贝构造
 		// 临时对象马上就要被析构掉了，因此.....
 		cout << "CMyString(CMyString&&)" << endl;

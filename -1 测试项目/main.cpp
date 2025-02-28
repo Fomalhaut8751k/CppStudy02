@@ -2,6 +2,7 @@
 
 using namespace std;
 
+#if 0  // 堆区上构造和析构
 class Test {
 public:
 	Test(int a = 10) :ma(a) { cout << "Test()" << endl; }
@@ -34,3 +35,27 @@ int main() {
 
 	return 0;
 }
+#endif 
+#if 1  // move和forward
+
+void test(int&& a) noexcept{
+	cout << "test(int&&)" << endl;
+}
+
+int main() {
+	int a = 20;
+	// int&& b = a;  // 右值引用右边必须是右值，a是左值
+	int&& b = std::move(20);  
+	int&& c = std::move(a);
+
+	test(a);
+	test(20);
+	test(std::move(a));
+	test(std::move(20));
+
+	int&& e = std::forward<int>(a);
+	test(std::forward<int>(20));
+
+	return 0;
+}
+#endif
