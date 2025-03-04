@@ -25,6 +25,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "08 智能指针的删除器
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "09 绑定器", "09 绑定器\09 绑定器.vcxproj", "{2BBA21BF-F6EF-49CF-B97C-D81122FE4A64}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "10 bind和function", "10 bind和function\10 bind和function.vcxproj", "{DEA1B508-A1B3-462D-95FC-AAA7737A7FE1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -121,6 +123,14 @@ Global
 		{2BBA21BF-F6EF-49CF-B97C-D81122FE4A64}.Release|x64.Build.0 = Release|x64
 		{2BBA21BF-F6EF-49CF-B97C-D81122FE4A64}.Release|x86.ActiveCfg = Release|Win32
 		{2BBA21BF-F6EF-49CF-B97C-D81122FE4A64}.Release|x86.Build.0 = Release|Win32
+		{DEA1B508-A1B3-462D-95FC-AAA7737A7FE1}.Debug|x64.ActiveCfg = Debug|x64
+		{DEA1B508-A1B3-462D-95FC-AAA7737A7FE1}.Debug|x64.Build.0 = Debug|x64
+		{DEA1B508-A1B3-462D-95FC-AAA7737A7FE1}.Debug|x86.ActiveCfg = Debug|Win32
+		{DEA1B508-A1B3-462D-95FC-AAA7737A7FE1}.Debug|x86.Build.0 = Debug|Win32
+		{DEA1B508-A1B3-462D-95FC-AAA7737A7FE1}.Release|x64.ActiveCfg = Release|x64
+		{DEA1B508-A1B3-462D-95FC-AAA7737A7FE1}.Release|x64.Build.0 = Release|x64
+		{DEA1B508-A1B3-462D-95FC-AAA7737A7FE1}.Release|x86.ActiveCfg = Release|Win32
+		{DEA1B508-A1B3-462D-95FC-AAA7737A7FE1}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

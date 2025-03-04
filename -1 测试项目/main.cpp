@@ -2,6 +2,8 @@
 #include<memory>
 #include<thread>
 #include<vector>
+#include<functional>
+#include<algorithm>
 
 #include<windows.h>
 
@@ -348,7 +350,7 @@ int main() {
 }
 #endif
 
-#if 1  // 多线程（速度太快了把持不住）
+#if 0  // 多线程（速度太快了把持不住）
 // 对象池
 class Item {
 public:
@@ -407,7 +409,7 @@ void handler01(int* p) {
 	}
 }
 
-int main() {
+int main() {  
 
 	int count = 0;  // main线程和子线程共享的资源
 	int cnt = 0;
@@ -429,4 +431,46 @@ int main() {
 	return 0;
 }
 
+#endif
+#if 0  // insert
+int main() {
+	vector<int> vec = { 10,4 };
+	auto it = vec.end();
+	vec.insert(it, 2);
+	for_each(vec.begin(), vec.end(), [](int a)->void {cout << a << " "; });
+	cout << endl;
+}
+#endif
+
+#if 1  // bind2nd的实现
+
+template<typename Compare, typename T>
+class _mybind2nd {  // 一元函数对象
+public:
+	_mybind2nd(Compare con, T val)
+		:_Comp(con), _Val(val){}
+	bool operator()(const T& val) {
+		return _Comp(val, _Val);  // 绑定在第二个值
+	}
+private:
+	Compare _Comp;
+	T _Val;
+};
+
+template<typename Compare, typename T>
+_mybind2nd<Compare, T> mybind2nd(Compare comp, T val) {
+	return _mybind2nd<Compare, T>(comp, val);
+}
+
+int main() {
+	
+	vector<int> vec = {5003, 3111, 1876, 17, 9, 7};
+	auto it = find_if(vec.begin(), vec.end(), mybind2nd(less<int>(), 10));
+	if (it != vec.end()) {
+		vec.insert(it, 10);
+	}
+	for_each(vec.begin(), vec.end(), [](int val)->void {cout << val << " "; });
+
+	return 0;
+}
 #endif
