@@ -5,6 +5,8 @@
 #include<functional>
 #include<algorithm>
 
+#include<map>
+
 #include<windows.h>
 
 
@@ -432,7 +434,7 @@ int main() {
 }
 
 #endif
-#if 0  // insert
+#if 0 // insert
 int main() {
 	vector<int> vec = { 10,4 };
 	auto it = vec.end();
@@ -442,7 +444,7 @@ int main() {
 }
 #endif
 
-#if 1  // bind2nd的实现
+#if 0  // bind2nd的实现
 
 template<typename Compare, typename T>
 class _mybind2nd {  // 一元函数对象
@@ -470,6 +472,207 @@ int main() {
 		vec.insert(it, 10);
 	}
 	for_each(vec.begin(), vec.end(), [](int val)->void {cout << val << " "; });
+
+	return 0;
+}
+#endif
+
+#if 0  // bind1st, bind2nd和bind
+int sum(int a, int b, int c) { return a + b + c; }
+
+class Test {
+public:
+	void pdc(const char* str) const {
+		cout << str << endl;
+	}
+
+	bool greater(int a, int b) {
+		return a > b;
+	}
+
+	bool greater_than_50(int a) {
+		return bind(&Test::greater, this, placeholders::_1, 50)(a);
+	}
+};
+
+int main() {
+	//auto func1 = bind1st(sum, 10);
+	//func1(30, 20);
+
+	//auto func2 = bind2nd(sum, 10);
+	//func2(30, 20);
+
+	auto func3 = bind(sum, 10, placeholders::_1, placeholders::_2);
+	auto func4 = bind(sum, placeholders::_1, 10, placeholders::_2);
+	auto func5 = bind(sum, placeholders::_1, placeholders::_2, 10);
+
+	cout << func3(30, 20) << endl;
+
+	auto func6 = bind(&Test::pdc, Test(), "HelloWorld");
+
+	func6();
+
+	Test t1;
+	cout << t1.greater_than_50(70) << endl;
+
+	return 0;
+}
+#endif
+
+#if 0  // function
+void func(const char* str) {
+	cout << str << endl;
+}
+
+class Test {
+public:
+	void operator()(const char* str) {
+		cout << str << endl;
+	}
+
+	void func(const char* str) {
+		cout << str << endl;
+	}
+};
+
+int main() {
+	// 函数
+	function<void(const char*)> func1 = func;  
+	func1("pdcHelloWorld_1");
+
+	// bind绑定器
+	function<void(void)> func2 = bind(func, "pdcHelloWorld");  
+	func2();
+
+	// lambda表达式
+	function<void(const char*)> func3 = [](const char* str)->void {cout << str << endl; };
+	func3("pdcHelloWorld_2");
+
+	// 函数对象
+	function<void(const char*)> func4 = Test();
+	func4("pdcHelloWorld_3");
+
+	// 函数指针
+	void(*pfunc)(const char*) = &func;
+	function<void(const char*)> func5 = pfunc;  
+	func5("pdcHelloWorld_4");
+
+	// 类成员函数
+	function<void(Test*, const char*)> func6 = &Test::func;
+	Test t1;
+	func6(&t1,"pdcHelloWorld_5");
+
+	map<int, function<void(const char*)>> m = {
+		{1, func1},
+		{2, func3},
+		{3, func4},
+		{4, func5},
+	};
+	while (1) {
+		int choice = 0; 
+		cout << "请输入你的选择: "; cin >> choice;
+		if (choice >= 1 && choice <= 4) {
+			m[choice]("pdcHelloWorld");
+		}
+	}
+
+	return 0;
+}
+#endif
+
+#if 0  // lambda表达式
+
+int main() {
+	cout << [](int a, int b)->int {return a + b; }(10, 20) << endl;
+	
+	vector<int> vec = { 5, 0, 0, 3 };
+	for_each(vec.begin(), vec.end(), [](int num)->void {cout << num; }); cout << endl;
+
+	int a = 10, b = 20;
+	cout << "a = " << a << "\t" << "b = " << b << endl;
+	[&]()->void {
+		int tmp = a;
+		a = b;
+		b = tmp;
+	}();
+	cout << "a = " << a << "\t" << "b = " << b << endl;
+
+	return 0;
+}
+#endif
+
+#if 1  // bind1st, function, lambda底层逻辑
+int sum(int a, int b) { return a + b; }
+
+// #################### bind1st的底层逻辑 ####################
+class mybind1st {
+public:
+	mybind1st(int(*pfunc)(int, int), int a) :
+		_pfunc(pfunc), _a(a) {}
+
+	// bind1st(sum, 10)整体来看是一个一元的函数对象
+	int operator()(int a) {
+		return _pfunc(_a, a);  // 调用的时候绑定了第一个参数
+	}
+
+private:
+	int(*_pfunc)(int, int);  // 代表sum
+	int _a;  // 代表10
+};
+
+// #################### function的底层逻辑 ####################
+template<typename Ty>
+class myfunction {};
+
+template<typename R, typename A1, typename A2>
+class myfunction<R(A1, A2)> {
+public:
+	using PFUNC = R(*)(A1, A2);
+	myfunction(PFUNC pfunc) { // int(int, int)是一个函数类型
+		_pfunc = pfunc;
+	}
+	R operator()(A1 a1, A2 a2) {
+		return _pfunc(a1, a2);
+	}
+private:
+	PFUNC _pfunc;
+};
+
+
+int main() {
+	/* 首先绑定器怎么使用的？
+		bind1st(sum, 10)(20);
+		bind1st(sum, 10)整体来看是一个一元的函数对象
+	*/
+	cout << mybind1st(sum, 10)(20) << endl;
+	/* 首先function是怎么使用的？
+		function<int(int, int)> func = sum;
+		func(10, 20);
+	*/
+	myfunction<int(int, int)> func(sum);
+	cout << func(20, 40) << endl;
+	/* 首先lambda表达式是怎么使用的？
+		[](const char* str)->void {cout << str << endl; }("pdcHelloWorld");
+	*/	
+}
+
+#endif
+
+#if 1
+template<typename T>
+class Test {
+public:
+	Test(int num) :_num(num) {};
+	~Test();
+	Test(const Test<T>& t) :_num(t.num) {};
+
+	Test<T>& operator=(const Test<T>& t) { _num = t._num; }
+
+private:
+	T _num;
+};
+
+int main() {
 
 	return 0;
 }

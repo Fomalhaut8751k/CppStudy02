@@ -89,7 +89,7 @@ template<typename Fty>
 class myfunction1 {};
 
 template<typename R, typename A1, typename A2>
-class myfunction1<R(A1,A2)> {
+class myfunction1<R(A1, A2)> {
 public:
 	using PFUNC = R(*)(A1, A2);
 	myfunction1(PFUNC pfunc) :_pfunc(pfunc) {};
@@ -104,7 +104,7 @@ private:
 */
 template<typename Fty>
 class myfunction_ {};
-
+// 模板的部分实例化
 template<typename R, typename... A1>  // 加... 可变参，参数个数是不定的
 class myfunction_<R(A1...)> {
 public:
@@ -151,16 +151,16 @@ int main() {
 		std::cout << "请选择: ";
 		std::cin >> choice;
 
-		
+
 		switch (choice) {   这段代码不好，无法闭合，无法做到开闭原则
 		case 1:             因为随着开发，有新功能就要增加，哪个不要
 			break;          了就要删除，改来改去的。
 		case 2:
 			break;
-		case 3: 
+		case 3:
 			break;
 		}
-		
+
 		auto it = actionMap.find(choice);
 		if (it == actionMap.end()) {
 			std::cout << "输入数字无效，请重新选择" << std::endl;
