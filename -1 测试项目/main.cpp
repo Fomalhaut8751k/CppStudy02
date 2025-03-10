@@ -601,7 +601,7 @@ int main() {
 }
 #endif
 
-#if 1  // bind1st, function, lambda底层逻辑
+#if 0  // bind1st, function, lambda底层逻辑
 int sum(int a, int b) { return a + b; }
 
 // #################### bind1st的底层逻辑 ####################
@@ -638,7 +638,6 @@ private:
 	PFUNC _pfunc;
 };
 
-
 int main() {
 	/* 首先绑定器怎么使用的？
 		bind1st(sum, 10)(20);
@@ -658,22 +657,133 @@ int main() {
 
 #endif
 
-#if 1
-template<typename T>
-class Test {
-public:
-	Test(int num) :_num(num) {};
-	~Test();
-	Test(const Test<T>& t) :_num(t.num) {};
+#if 0  // 原模板，完全实例化模板，部分实例化模板
+int sum(int a, int b) { return a + b; }
 
-	Test<T>& operator=(const Test<T>& t) { _num = t._num; }
+// 原模板实现function
+template<typename R, typename A1, typename A2>
+class myfunction {
+public:
+	using PFUNC = R(*)(A1, A2);
+	myfunction(PFUNC pfunc) :_pfunc(pfunc) {
+		cout << "原模板实现function<R, A1, A2>" << endl;
+	};  // 构造和析构函数名字不用加<>
+
+	R operator()(A1 a1, A2 a2) {
+		return _pfunc(a1, a2);
+	}
 
 private:
-	T _num;
+	PFUNC _pfunc;
 };
 
+// 完全实例化模板实现function
+/*
+	template<>
+	class myfunction<int(int, int)>{}
+	
+	原模板有三个参数R，A1，A2，而int(int,int)是函数类型，只有一个，会报错
+*/
+template<typename Ty>  // 只设置一个模板参数
+class myfunction1{};  // 然后不用实现
+
+template<>
+class myfunction1<int(int, int)> {
+public:
+	using PFUNC = int(*)(int, int);
+	myfunction1(int(*pfunc)(int, int)) :_pfunc(pfunc) {
+		cout << "完全实例化模板实现function<int(int, int)>" << endl;
+		_pfunc = pfunc;
+	}
+	int operator()(int a, int b) {
+		return _pfunc(a, b);
+	}
+private:
+	PFUNC _pfunc;
+};
+
+// 部分实例化模板实现function
+template<typename Ty>
+class myfunction2{};
+
+template<typename R, typename A1, typename A2>
+class myfunction2<R(A1, A2)> {
+public:
+	using PFUNC = R(*)(A1, A2);
+	myfunction2(R(*pfunc)(A1, A2)) :_pfunc(pfunc) {
+		cout << "部分实例化模板实现function<R(A1, A2)>" << endl;
+	}
+	R operator()(A1 a1, A2 a2) {
+		return _pfunc(a1, a2);
+	}
+private:
+	PFUNC _pfunc;
+};
+ 
 int main() {
+	cout << "内置的function<R(A1,A2)>" << endl;
+	function<int(int, int)> func = sum;
+	cout << "20 + 30 = " << func(20, 30) << endl;
+	// function的底层逻辑也可以用原模板实现，就是模板参数<>里面不好看
+
+	myfunction<int, int, int> myfunc = sum;
+	cout << "20 + 30 = " << myfunc(20, 30) << endl;
+
+	// function<int(int, int)>用完全实例化的函数模板实现，但是返回值和形参类型定死了
+
+	myfunction1<int(int, int)> myfunc1 = sum;
+	cout << "20 + 30 = " << myfunc(20, 30) << endl;
+
+	//function<R(A1, A2)>用部分实例化的函数模板实现
+
+	myfunction2<int(int, int)> myfunc2 = sum;
+	cout << "20 + 30 = " << myfunc2(20, 30) << endl;
+
 
 	return 0;
+}
+#endif
+
+#if 1  // RTTI
+class Base {
+public:
+	virtual void show() {
+		cout << "Base::HelloWorld" << endl;
+	}
+};
+class Derive1 : public Base {
+public:
+	void show() {
+		cout << "Derive1::HelloWorld" << endl;
+	}
+};
+
+class Derive2 : public Base {
+public:
+	void show() {
+		cout << "Derive2::HelloWorld" << endl;
+	}
+
+	void supershow() {
+		cout << "Derive2::pdcHelloWorld" << endl;
+	}
+};
+
+void func(Base* pb) {
+	//pb->show();
+	Derive2* pdb = dynamic_cast<Derive2*>(pb);
+	if (pdb != nullptr) {
+		pdb->supershow();
+	}
+	else {
+		pb->show();
+	}
+}
+
+int main() {
+	Derive1 d1;
+	Derive2 d2;
+	func(&d1);
+	func(&d2);
 }
 #endif
