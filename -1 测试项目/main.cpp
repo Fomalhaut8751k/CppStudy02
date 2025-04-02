@@ -744,7 +744,7 @@ int main() {
 }
 #endif
 
-#if 1  // RTTI
+#if 0  // RTTI
 class Base {
 public:
 	virtual void show() {
@@ -785,5 +785,89 @@ int main() {
 	Derive2 d2;
 	func(&d1);
 	func(&d2);
+}
+#endif
+
+#if 0  // 原子类型
+#include<atomic>
+#include<mutex>
+
+//atomic<int> numCount = 0;
+
+std::mutex mtx;
+int numCount = 0;
+
+void addCount1() {
+	for (int i = 0; i < 1000; ++i) {
+		std::this_thread::sleep_for(std::chrono::milliseconds(10));
+		unique_lock<std::mutex> lck(mtx);
+		numCount++;
+		//cout << "线程一加1: " << ++numCount << endl;
+		
+	}
+}
+
+void addCount2() {
+	for (int i = 0; i < 20; ++i) {
+		std::this_thread::sleep_for(std::chrono::seconds(3));
+		cout << "线程二加1: " << ++numCount << endl;
+		
+	}
+}
+
+
+int main() {
+
+	vector<thread> vec;
+	for (int i = 0; i < 100; ++i) {
+		vec.push_back(thread(addCount1));
+	}
+
+	for (auto& t : vec) {
+		t.join();
+	}
+
+	cout << "numCount: " << numCount << endl;
+
+	return 0;
+}
+#endif
+#if 1
+
+// 在一支球队中，中场和后卫是有关联关系的
+class Midfielder { public: virtual void show() = 0; };
+class Iniesta : public Midfielder { public: void show() { cout << "1" << endl; } };
+
+class Defender{ public: virtual void show() = 0; };
+class Cannavaro : public Defender { public: void show() { cout << "2" << endl; } };
+
+// 抽象工厂
+class AbstractFactroy
+{
+public:
+	virtual Midfielder* createMidfielder() = 0;
+	virtual Defender* createDefender() = 0;
+};
+
+// 球队工厂
+class TeamFactory: public AbstractFactroy
+{
+public:
+	Midfielder* createMidfielder()
+	{
+		return new Iniesta();
+	}
+	Defender* createDefender()
+	{
+		return new Cannavaro();
+	}
+};
+
+int main()
+{
+	unique_ptr<AbstractFactroy> teamf(new TeamFactory());
+	teamf->createMidfielder()->show();
+	teamf->createDefender()->show();
+	return 0;
 }
 #endif

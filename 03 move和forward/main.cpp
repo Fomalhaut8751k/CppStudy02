@@ -166,17 +166,17 @@ public:
 
 // ############################### Vector ######################################
 template<typename T, typename Alloc = Allocator<T>>
-class vector {
+class MyVector {
 public:
 	// 需要把内存开辟和对象构造分开处理
-	vector(int size = 10) {
+	MyVector(int size = 10) {
 		_first = _allocator.allocate(size); // 内存开辟
 		_last = _first;
 		_end = _first + size;
 	}
 
 	// 析构容器有效的元素，然后释放_first指向的堆内存
-	~vector() {
+	~MyVector() {
 		//delete[] _first;
 		for (T* p = _first; p != _last; ++p) {
 			_allocator.destroy(p); // 把_first指针指向的数组的有效元素进行析构操作
@@ -185,7 +185,7 @@ public:
 		_first = _last = _end = nullptr;
 	}
 
-	vector(const vector<T>& vec) {
+	MyVector(const MyVector<T>& vec) {
 		//_first(new T[vec._end - vec._fisrt]);
 		int size = vec._end - vec._first;
 		_first = _allocator.allocate(size);
@@ -200,7 +200,7 @@ public:
 		_end = _first + size;
 	}
 
-	vector<T>& operator=(const vector<T>& vec) {
+	MyVector<T>& operator=(const MyVector<T>& vec) {
 		if (this == &vec)
 			return *this;
 		//delete[] _first;
@@ -287,8 +287,8 @@ public:
 
 	class iterator {
 	public:
-		friend class vector<T, Alloc>;
-		iterator(vector<T, Alloc>* pvec, T* ptr = nullptr)
+		friend class MyVector<T, Alloc>;
+		iterator(MyVector<T, Alloc>* pvec, T* ptr = nullptr)
 			:_ptr(ptr), _pVec(pvec) {
 			Iterator_Base* itb =
 				new Iterator_Base(this, _pVec->_head._next);
@@ -322,7 +322,7 @@ public:
 		}
 	private:
 		T* _ptr;
-		vector<T, Alloc>* _pVec;  // 当前迭代器是哪个容器的一些
+		MyVector<T, Alloc>* _pVec;  // 当前迭代器是哪个容器的一些
 	};
 
 	iterator begin() { return iterator(this, _first); }
@@ -418,7 +418,7 @@ private:
 
 int main() {
 	CMyString str1 = "aaa";
-	vector<CMyString> vec;
+	MyVector<CMyString> vec;
 
 	cout << "--------------------------------" << endl;
 	vec.push_back(str1); // 在vector上拷贝构造一个新的对象
