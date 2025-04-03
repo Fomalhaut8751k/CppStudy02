@@ -12,9 +12,9 @@ using namespace std;
 class Car
 {
 public:
-	Car(int speed) :_cSpeed(speed) {};
+	Car(int speed = 120) :_cSpeed(speed) {};
 	virtual void show() = 0;  // 仪表盘之速度
-protected:
+
 	int _cSpeed;
 };
 
@@ -22,15 +22,59 @@ protected:
 class BMW : public Car
 {
 public:
-	BMW(int speed) :Car(speed) {};
+	BMW(int speed = 120) :Car(speed) {};
 	void show()
 	{
-		cout << "当前时速为: " << _cSpeed << "公里每小时" << endl;
+		cout << "宝马_当前时速为: " << _cSpeed << "公里每小时" << endl;
 	}
+};
+
+class AUDI : public Car
+{
+public:
+	AUDI(int speed = 120) :Car(speed) {};
+	void show()
+	{
+		cout << "奥迪_当前时速为: " << _cSpeed << "公里每小时" << endl;
+	}
+};
+
+// 装饰器
+class CarDecorator01 : public Car
+{
+public:
+	CarDecorator01(Car* p):pCar(p){}
+	void show()
+	{
+		cout << "开启定速巡航，时速为80" << endl;
+		pCar->_cSpeed = 80;
+		pCar->show();
+	}
+private:
+	Car* pCar;
+};
+
+class CarDecorator02 : public Car
+{
+public:
+	CarDecorator02(Car* p) :pCar(p) {}
+	void show()
+	{
+		cout << "开启紧急制动，时速为0" << endl;
+		pCar->_cSpeed = 0;
+		pCar->show();
+	}
+private:
+	Car* pCar;
 };
 
 int main()
 {
+	Car* bmw_decorator = new CarDecorator01(new BMW());
+	bmw_decorator->show();
+
+	bmw_decorator = new CarDecorator02(new BMW());
+	bmw_decorator->show();
 
 
 	return 0;
